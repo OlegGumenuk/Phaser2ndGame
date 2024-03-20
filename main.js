@@ -6,7 +6,7 @@ var config = {
         default: 'arcade',
         arcade: {
             gravity: { y: 300 },
-            debug: false
+            debug: true
         }
     },
     scene: {
@@ -15,6 +15,8 @@ var config = {
         update: update
     }
 };
+var lifeText
+var enemyCount = 10
 var livesHP;
 var lives = 3;
 var SkeletonA = 0;
@@ -24,6 +26,9 @@ var game = new Phaser.Game(config);
 var score = 0;
 var scoreText;
 function preload() {
+    this.load.image('reset', 'assets/reset.png')
+    this.load.image('enemy', 'assets/enemy.png')
+    this.load.image('fire', 'assets/fire.png')
     this.load.image('HP', 'assets/HP.png')
     this.load.image('Bush', 'assets/Bush (1).png')
     this.load.image('Skeleton', 'assets/Skeleton.png')
@@ -45,10 +50,11 @@ var platforms;
 
 
 function update() {
+   
     cursors = this.input.keyboard.createCursorKeys();
     if (cursors.left.isDown) {
         player.setVelocityX(-320);
-
+ 
         player.anims.play('left', true);
     }
     else if (cursors.right.isDown) {
@@ -65,8 +71,48 @@ function update() {
     if (cursors.up.isDown && player.body.touching.down) {
         player.setVelocityY(-500);
     }
-}
+if (cursors.space.isDown) {
+        console.log(player.body.velocity.x)
+        //Створюємо постріл
+        fire = this.physics.add.sprite (player.x, player.y, 'fire').setScale(0.5);
+        fire
+        .setVelocityX(player.body. velocity.x * 2)
+        this.physics.add.collider (fire, platforms, () => {
+        fire.disableBody (true, true);
+        });
+        //Колізія постріла та ворога
+        //t h is.physics.add.collider (enemy, fire, hitEnemyFire, null, this);
+        this.physics.add.collider (enemy, fire, (enemy, fire) => {
+        fire.disableBody (true, true);
+        enemy.disableBody (true, true);
+        }, null, this);
+    if (Math.abs(player.x - enemy.x) < 600) {
+        enemy.moveTo(player, player.x, player.y, 300, 1)
+        }
+        //Зміна напрямку руху ворога
+        enemy.children.iterate((child) => {
+        if (Math.random() < 1) {
+        child.setVelocityX(Phaser.Math.FloatBetween (-500,500))
+              }
+        })}}
+        function showLife() {
+            var lifeLine = ''
+            for (var i = 0; i < lives; i++) {
+            lifeLine = lifeLine + '<3'
+            // lifeLine +=
+            //console.log(life)
+            }
+            return lifeLine
+            }
 function create() {
+    
+    var resetButton = this.physics.add.image(100, 100, 'reset')
+    .setInteractive()
+    .setScrollFactor(0)
+
+    resetButton.on('pointerdown', function() {
+        refreshbody()
+    } )
 
         for (var bg1 = 900; bg1 < worldwidth; bg1 = bg1 + 1800) {
         this.add.image(bg1, 420, 'BG+').setScrollFactor(0.2);
@@ -83,6 +129,7 @@ function create() {
             this.add.image(x + 250, 690, 'Skeleton');
         }
     }
+
     platforms = this.physics.add.staticGroup();
     for (var x = 0; x < worldwidth; x = x + 128) {
         platforms.create(x, 776, 'tile');
@@ -105,7 +152,19 @@ function create() {
 
     player.setBounce(0.2);
     player.setCollideWorldBounds(true);
-
+    
+    enemy = this.physics.add.group({
+        key: 'enemy',
+        repeat: worldwidth/300,
+        setXY: { x: 300, y: 700 - 150, stepX: Phaser.Math. FloatBetween (300, 500) }
+        });
+        enemy.children.iterate (function (child) {
+        child
+        //.setBounce (Phaser.Math. FloatBetween(0, 1))
+        .setCollideWorldBounds (true)
+        .setVelocityX(Phaser.Math. FloatBetween(-500, 500))
+        });
+        
     this.cameras.main.setBounds(0, 0, worldwidth, 840);
     this.physics.world.setBounds(0, 0, worldwidth, 840);
     this.cameras.main.startFollow(player);
@@ -129,11 +188,6 @@ function create() {
         repeat: -1
     });
     this.physics.add.collider(player, platforms);
-    livesHP = this.add.group({
-        key: 'HP',
-        repeat: lives-1,
-        setXY: { x: 30, y: 70, stepX: 70 }
-    });
     stars = this.physics.add.group({
         key: 'star',
         repeat: worldwidth / 12,
@@ -152,7 +206,7 @@ function create() {
         star.disableBody(true, true);
         score += 10;
         
-        var bomb = bombs.create(Phaser.Math.Between(-200, 200), 16, 'bomb');
+        var bomb = bombs.create(Phaser.Math.Between(0, worldwidth), 16, 'bomb');
         bomb.setBounce(1);
         bomb.setCollideWorldBounds(true);
         bomb.setVelocity(Phaser.Math.Between(-200, 200), 20);
@@ -163,6 +217,15 @@ function create() {
 
         }
     }
+        //Колізія ворогів та платформ
+this.physics.add.collider (enemy, platforms);
+//Колізія ворогів та гравця
+this.physics.add.collider (player, enemy, () => {
+//fire.disableBody (true, true);
+player.x = player.x + Phaser.Math.FloatBetween (-200, 200);
+player.y = player.y - Phaser.Math.FloatBetween (200, 400);
+//lifeText.setText(showTextSymbols ('', life))
+}, null, this);
     scoreText = this.add.text(16, 16, 'score: 0', { fontSize: '32px', fill: '#FFFFFF' }).setOrigin(0, 0).setScrollFactor(0);
 
     bombs = this.physics.add.group();
@@ -180,4 +243,8 @@ function create() {
             gameOver = true;
         }
     }
+    
+}
+function refreshbody() {
+    window.location.reload();
 }
