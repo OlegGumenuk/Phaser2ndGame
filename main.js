@@ -15,6 +15,7 @@ var config = {
         update: update
     }
 };
+var lifeLine = '<3 <3 <3'
 var lifeText
 var enemyCount = 10
 var livesHP;
@@ -74,7 +75,7 @@ function update() {
 if (cursors.space.isDown) {
         console.log(player.body.velocity.x)
         //Створюємо постріл
-        fire = this.physics.add.sprite (player.x, player.y, 'fire').setScale(0.5);
+        fire = this.physics.add.sprite (player.x, player.y, 'fire').setScale(0.3);
         fire
         .setVelocityX(player.body. velocity.x * 2)
         this.physics.add.collider (fire, platforms, () => {
@@ -95,17 +96,9 @@ if (cursors.space.isDown) {
         child.setVelocityX(Phaser.Math.FloatBetween (-500,500))
               }
         })}}
-        function showLife() {
-            var lifeLine = ''
-            for (var i = 0; i < lives; i++) {
-            lifeLine = lifeLine + '<3'
-            // lifeLine +=
-            //console.log(life)
-            }
-            return lifeLine
-            }
+
 function create() {
-    
+
     var resetButton = this.physics.add.image(100, 100, 'reset')
     .setInteractive()
     .setScrollFactor(0)
@@ -227,7 +220,7 @@ player.y = player.y - Phaser.Math.FloatBetween (200, 400);
 //lifeText.setText(showTextSymbols ('', life))
 }, null, this);
     scoreText = this.add.text(16, 16, 'score: 0', { fontSize: '32px', fill: '#FFFFFF' }).setOrigin(0, 0).setScrollFactor(0);
-
+    lifeText = this.add.text(16, 48, 'lives: <3 <3 <3', { fontSize: '32px', fill: '#FFFFFF' }).setOrigin(0, 0).setScrollFactor(0);
     bombs = this.physics.add.group();
     this.physics.add.collider(bombs, platforms);
 
@@ -235,6 +228,12 @@ player.y = player.y - Phaser.Math.FloatBetween (200, 400);
     function hitBomb(player, _bomb) {
 
         lives = lives - 1;
+            var lifeLine = ''
+            for (var i = 0; i < lives; i++) {
+            lifeLine = lifeLine + ' <3'
+            }
+        
+        lifeText.setText('Lives:' + lifeLine)    
         if (lives === 0) {
             player.setTint(0xff0000);
             this.physics.pause();
