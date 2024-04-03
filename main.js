@@ -15,10 +15,10 @@ var config = {
         update: update
     }
 };
+var resetButton
 var lifeLine = '<3 <3 <3'
 var lifeText
 var enemyCount = 10
-var livesHP;
 var lives = 3;
 var SkeletonA = 0;
 var stars;
@@ -27,10 +27,9 @@ var game = new Phaser.Game(config);
 var score = 0;
 var scoreText;
 function preload() {
-    this.load.image('reset', 'assets/reset.png')
+    this.load.image('resetbutton', 'assets/resetbutton.png')
     this.load.image('enemy', 'assets/enemy.png')
     this.load.image('fire', 'assets/fire.png')
-    this.load.image('HP', 'assets/HP.png')
     this.load.image('Bush', 'assets/Bush (1).png')
     this.load.image('Skeleton', 'assets/Skeleton.png')
     this.load.image('TombStone', 'assets/TombStone (1).png')
@@ -49,7 +48,9 @@ function preload() {
 
 var platforms;
 
-
+function refreshbody() {
+    window.location.reload();
+}
 function update() {
    
     cursors = this.input.keyboard.createCursorKeys();
@@ -82,7 +83,6 @@ if (cursors.space.isDown) {
         fire.disableBody (true, true);
         });
         //Колізія постріла та ворога
-        //t h is.physics.add.collider (enemy, fire, hitEnemyFire, null, this);
         this.physics.add.collider (enemy, fire, (enemy, fire) => {
         fire.disableBody (true, true);
         enemy.disableBody (true, true);
@@ -99,7 +99,7 @@ if (cursors.space.isDown) {
 
 function create() {
 
-    var resetButton = this.physics.add.image(100, 100, 'reset')
+    resetButton = this.add.image(200, 200, 'resetbutton')
     .setInteractive()
     .setScrollFactor(0)
 
@@ -220,7 +220,7 @@ player.y = player.y - Phaser.Math.FloatBetween (200, 400);
 //lifeText.setText(showTextSymbols ('', life))
 }, null, this);
     scoreText = this.add.text(16, 16, 'score: 0', { fontSize: '32px', fill: '#FFFFFF' }).setOrigin(0, 0).setScrollFactor(0);
-    lifeText = this.add.text(16, 48, 'lives: <3 <3 <3', { fontSize: '32px', fill: '#FFFFFF' }).setOrigin(0, 0).setScrollFactor(0);
+    lifeText = this.add.text(16, 48, 'lives: ❤️ ❤️ ❤️', { fontSize: '32px', fill: '#FFFFFF' }).setOrigin(0, 0).setScrollFactor(0);
     bombs = this.physics.add.group();
     this.physics.add.collider(bombs, platforms);
 
@@ -230,7 +230,7 @@ player.y = player.y - Phaser.Math.FloatBetween (200, 400);
         lives = lives - 1;
             var lifeLine = ''
             for (var i = 0; i < lives; i++) {
-            lifeLine = lifeLine + ' <3'
+            lifeLine = lifeLine + ' ❤️'
             }
         
         lifeText.setText('Lives:' + lifeLine)    
@@ -244,6 +244,4 @@ player.y = player.y - Phaser.Math.FloatBetween (200, 400);
     }
     
 }
-function refreshbody() {
-    window.location.reload();
-}
+
